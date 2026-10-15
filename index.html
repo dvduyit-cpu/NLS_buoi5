@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Buổi 6 - Thiết kế quy trình làm việc có AI theo chuyên ngành</title>
+<style>
+:root{
+  --bg:#f4f7fb;--card:#fff;--ink:#17324d;--muted:#5f6f80;
+  --blue:#0f78d1;--green:#18a36b;--orange:#ff7a18;--purple:#7447c6;--red:#ec2335;
+  --line:#dbe5ef;--shadow:0 10px 30px rgba(20,50,80,.10);
+}
+*{box-sizing:border-box} html{scroll-behavior:smooth}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+header{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nav{max-width:1200px;margin:auto;display:flex;gap:10px;align-items:center;padding:10px 16px;flex-wrap:wrap}
+.brand{font-weight:800;margin-right:auto}
+.brand small{display:block;color:var(--muted);font-weight:600;font-size:12px}
+.nav button,.nav a{border:0;background:#eef5fb;color:var(--ink);padding:8px 12px;border-radius:10px;text-decoration:none;cursor:pointer;font-weight:700}
+.nav a:hover,.nav button:hover{background:#dfeefa}
+.progress{height:5px;background:#e8eef5}.progress > div{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--green))}
+.hero{max-width:1200px;margin:24px auto;padding:34px 24px;border-radius:24px;background:linear-gradient(135deg,#0a65b2,#6e43c3);color:#fff;box-shadow:var(--shadow)}
+.hero h1{font-size:clamp(30px,5vw,58px);line-height:1.08;margin:4px 0 12px}
+.hero p{font-size:18px;max-width:850px}
+.pills{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.pill{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);padding:8px 12px;border-radius:999px;font-weight:700}
+main{max-width:1200px;margin:auto;padding:0 16px 80px}
+.section{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px;margin:20px 0;box-shadow:var(--shadow)}
+.section h2{margin-top:0;font-size:30px}.section h3{margin-bottom:8px}
+.lesson{scroll-margin-top:90px}
+.grid{display:grid;gap:16px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:850px){.g2,.g3{grid-template-columns:1fr}}
+.card{border:1px solid var(--line);border-radius:16px;padding:16px;background:#fff}
+.card h4{margin:0 0 8px}
+.t-blue{border-top:6px solid var(--blue)}.t-green{border-top:6px solid var(--green)}.t-orange{border-top:6px solid var(--orange)}.t-purple{border-top:6px solid var(--purple)}.t-red{border-top:6px solid var(--red)}
+.callout{padding:14px 16px;border-left:5px solid var(--blue);background:#eff7ff;border-radius:10px}
+.workflow{display:flex;gap:10px;align-items:stretch;overflow-x:auto;padding:10px 0}
+.step{min-width:180px;flex:1;border-radius:15px;padding:14px;color:#fff;position:relative}
+.step:not(:last-child)::after{content:"→";position:absolute;right:-18px;top:40%;font-size:26px;color:#61758a;font-weight:900}
+.s1{background:var(--red)}.s2{background:var(--orange)}.s3{background:var(--purple)}.s4{background:var(--blue)}.s5{background:var(--green)}
+.step b{display:block;font-size:13px;opacity:.9}.step strong{font-size:18px}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden}th,td{border:1px solid var(--line);padding:10px;text-align:left;vertical-align:top}th{background:#edf5fb}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.tabbtn{border:0;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:800;background:#edf2f7}.tabbtn.active{background:var(--blue);color:#fff}.tabpane{display:none}.tabpane.active{display:block}
+details{border:1px solid var(--line);border-radius:12px;padding:10px 14px;background:#fafcfe;margin:10px 0}summary{cursor:pointer;font-weight:800}
+.quizq{margin:18px 0;padding:14px;border:1px solid var(--line);border-radius:14px}.quizq label{display:block;padding:6px 8px;border-radius:8px;cursor:pointer}.quizq label:hover{background:#f1f6fa}.quizq .feedback{margin-top:8px;font-weight:800}
+.btn{border:0;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:800;background:var(--blue);color:#fff}.btn.secondary{background:#e8eef5;color:var(--ink)}
+.timerbox{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px;border:1px dashed #9fb2c5;border-radius:12px}.timer{font-size:28px;font-weight:900;min-width:110px}
+.badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:900;background:#edf5fb;color:#0b5d9c}
+.exercise{background:#fffaf2;border-left:5px solid var(--orange);padding:16px;border-radius:12px;margin:14px 0}
+.answer{display:none;margin-top:10px;background:#f1fff7;border-left:4px solid var(--green);padding:12px;border-radius:10px}
+.footerbox{background:#0e3557;color:#fff;padding:28px;border-radius:18px;margin-top:24px}
+.small{font-size:13px;color:var(--muted)} code{background:#eef2f6;padding:2px 6px;border-radius:6px}
+textarea{width:100%;min-height:110px;border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit}
+
+.lessonplan{background:#eef8ff;border:1px solid #b9dafa;padding:15px;border-radius:14px;margin:15px 0}
+.timeline{display:flex;gap:8px;flex-wrap:wrap}.timeline span{background:#fff;border:1px solid #b9dafa;padding:7px 12px;border-radius:9px;font-weight:700}
+.example{padding:17px;border-radius:14px;background:#f3fff9;border:1px solid #bde5d2;margin:14px 0}
+.analysis{padding:13px 16px;border-radius:12px;background:#fff5ed;border-left:5px solid #ff7a18;margin:12px 0}
+.qa{background:#f8f4ff;border:1px solid #e2d8fc;border-radius:12px;padding:14px;margin:12px 0}
+.exercise ol li{margin:5px 0} .writingarea{margin-top:8px} 
+@media print{header,.timerbox button,.nav,.quizq input,.btn{display:none!important} .section{break-inside:avoid;box-shadow:none} details>*{display:block!important}}
+</style>
+</head>
+<body>
+<header>
+<div class="nav">
+<div class="brand">NĂNG LỰC SỐ – BUỔI 6<small>Thiết kế quy trình làm việc có AI theo chuyên ngành</small></div>
+<a href="#tiet1">Tiết 1</a><a href="#tiet2">Tiết 2</a><a href="#tiet3">Tiết 3</a><a href="#tiet4">Tiết 4</a><a href="#tiet5">Tiết 5</a>
+<button onclick="toggleMajor()">Đổi ngành hiển thị</button>
+</div>
+<div class="progress"><div id="progressBar"></div></div>
+</header>
+<div class="hero">
+<span class="badge">DÀNH CHO SINH VIÊN NĂM NHẤT</span>
+<h1>Thiết kế quy trình làm việc có AI theo chuyên ngành</h1>
+<p>Từ một tác vụ AI đơn lẻ đến quy trình có thể lặp lại, kiểm soát, đo lường và cải tiến. Bài học dùng hai bối cảnh xuyên suốt: <b>Hậu cần và Quản lý chuỗi cung ứng</b> và <b>Tài chính – Ngân hàng</b>.</p>
+<div class="pills">
+<span class="pill">5 tiết học</span><span class="pill">Ví dụ phân tích cụ thể</span><span class="pill">Thực hành từng tiết</span><span class="pill">Câu hỏi trắc nghiệm tương tác</span><span class="pill">Thử thách cuối buổi</span>
+</div>
+</div>
+<main>
+<section class="section">
+<h2>1. Mục tiêu học tập</h2><p>Bài học gồm 5 tiết, mỗi tiết 45 phút. Các số liệu trong tình huống là dữ liệu giả định để thực hành.</p>
+<div class="grid g3">
+<div class="card t-blue"><h4>Kiến thức</h4><p>Hiểu quy trình, Đầu vào – Xử lý – Đầu ra, điểm kiểm soát, bottleneck, handoff và Con người tham gia kiểm soát.</p></div>
+<div class="card t-green"><h4>Kỹ năng</h4><p>Phân rã nhiệm vụ thành 3–5 bước, viết câu lệnh AI cho từng bước, kiểm thử quy trình và đo Trước/Sau.</p></div>
+<div class="card t-orange"><h4>Thái độ</h4><p>Không “nhồi AI” vào mọi công việc; giữ con người tại các quyết định có rủi ro hoặc hậu quả cao.</p></div>
+</div>
+<div class="callout"><b>Thông điệp trung tâm:</b> Đừng chỉ hỏi “AI làm gì?”. Hãy thiết kế <b>cách AI làm việc cùng con người</b> trong một quy trình rõ ràng.</div>
+</section>
+<section class="section lesson" id="tiet1">
+<h2>TIẾT 1 — Hiểu Quy trình và nhìn công việc như một quy trình</h2>
+
+<h3>Khởi động: Vì sao cùng một công việc mà kết quả mỗi người khác nhau?</h3>
+<p>Tình huống thảo luận: “Một khách hàng hỏi vì sao đơn hàng chưa đến. Nhân viên A chỉ hỏi AI ‘Hãy trả lời khách’; nhân viên B kiểm tra mã đơn, vị trí xe và thời gian đã hẹn rồi mới nhờ AI soạn phản hồi. Cách làm nào đáng tin cậy hơn? Vì sao?”</p>
+<details><summary>Xem lời giải thích</summary><p>Nhân viên B có quy trình rõ và dữ kiện được kiểm tra. Nhân viên A dễ để AI đưa ra lời hứa không có căn cứ. Quy trình tốt tạo sự nhất quán, có thể bàn giao cho người khác và dễ phát hiện lỗi.</p></details>
+<h3>1.2 Sáu thành phần của một quy trình</h3>
+<div class="grid g3">
+<div class="card t-blue"><h4>1. Đầu vào</h4><p>Dữ liệu, văn bản, yêu cầu ban đầu. Ví dụ: 12 đơn hàng cần giao hoặc bảng thu chi tháng.</p></div>
+<div class="card t-green"><h4>2. Các bước xử lý</h4><p>Các hoạt động theo thứ tự có lý do. Ví dụ: nhận đơn → phân nhóm → đối chiếu → lập báo cáo.</p></div>
+<div class="card t-orange"><h4>3. Đầu ra</h4><p>Sản phẩm rõ định dạng và mục đích sử dụng. Ví dụ: bảng tổng hợp có các cột đã định.</p></div>
+<div class="card t-purple"><h4>4. Điểm kiểm tra</h4><p>Câu hỏi để biết thông tin đã đủ và đúng hay chưa. Ví dụ: tổng tiền các dòng bằng tổng báo cáo?</p></div>
+<div class="card t-red"><h4>5. Người quyết định</h4><p>Người chịu trách nhiệm khi cần chọn phương án hoặc xử lý ngoại lệ.</p></div>
+<div class="card t-blue"><h4>6. Cải tiến</h4><p>Đo thời gian, số lỗi, chất lượng rồi thay đổi cách làm.</p></div>
+</div>
+<h3>1.3 Phân biệt “sử dụng AI một lần” và “quy trình có AI”</h3>
+<table><tr><th>Tiêu chí</th><th>Chỉ hỏi AI</th><th>Quy trình có AI</th></tr>
+<tr><td>Đầu vào</td><td>Thường ngắn, thiếu bối cảnh</td><td>Có biểu mẫu dữ liệu và điều kiện đủ</td></tr>
+<tr><td>Cách làm</td><td>Hỏi → nhận kết quả → sử dụng ngay</td><td>Xác định → chuẩn bị → AI hỗ trợ → kiểm → hoàn thiện</td></tr>
+<tr><td>Trách nhiệm</td><td>Không rõ ai kiểm</td><td>Chỉ rõ người kiểm và nơi ra quyết định</td></tr>
+<tr><td>Tái sử dụng</td><td>Người khác phải tự nghĩ lại</td><td>Có thể lặp lại với dữ liệu mới</td></tr></table>
+<div class="qa"><b>Câu hỏi trên lớp:</b> “Nếu AI viết đúng ngữ pháp nhưng dùng sai mã vận đơn hoặc số tiền, bước nào đang thiếu?”<details><summary>Hiện giải thích</summary><p>Thiếu kiểm tra dữ liệu gốc trước khi phát hành kết quả; câu văn trôi chảy không đồng nghĩa thông tin đúng.</p></details></div>
+<h3>1.4 Mổ xẻ ví dụ cụ thể với dữ liệu minh họa</h3>
+<div class="example"><b>Hậu cần:</b> Đơn GH101 hẹn 9:00, vị trí xe cập nhật lúc 8:50 còn cách điểm giao 18 km. Nhân viên không thể chắc chắn giao đúng 9:00 chỉ bằng cách nhờ AI viết câu trả lời. Cần xác minh tốc độ/đường đi, cập nhật ETA từ hệ thống theo dõi và thông báo thời gian mới sau khi người điều phối phê duyệt.</div>
+<div class="example"><b>Tài chính – Ngân hàng:</b> Bảng mẫu có thu nhập tháng 12.000.000 đồng, chi phí sinh hoạt 7.000.000 đồng và khoản trả nợ đang có 2.000.000 đồng. Chênh lệch 3.000.000 đồng chỉ là phép tính trên dữ liệu đã cho; không được kết luận “đủ điều kiện vay” vì còn thiếu chính sách và dữ liệu xác minh.</div>
+<p><span class="badge">Mục tiêu</span> Sinh viên nhận diện được đầu vào, các bước xử lý, đầu ra, điểm kiểm soát và điểm nghẽn.</p>
+<h3>1.1 Quy trình là gì?</h3>
+<p>Quy trình là một chuỗi bước có logic để biến <b>đầu vào</b> thành <b>kết quả</b>. Một quy trình tốt không chỉ ghi “làm gì”, mà còn chỉ rõ <b>ai/công cụ nào làm</b>, <b>đầu ra của bước</b>, và <b>điều kiện để được chuyển bước</b>.</p>
+<div class="workflow">
+<div class="step s1"><b>01</b><strong>XÁC ĐỊNH</strong><br/>Bài toán + đầu vào + đầu ra</div>
+<div class="step s2"><b>02</b><strong>CHUẨN BỊ</strong><br/>Làm sạch dữ liệu/tài liệu</div>
+<div class="step s3"><b>03</b><strong>AI HỖ TRỢ</strong><br/>Phân tích, gợi ý, tạo nháp</div>
+<div class="step s4"><b>04</b><strong>KIỂM TRA</strong><br/>Nguồn, dữ liệu, quy tắc, logic</div>
+<div class="step s5"><b>05</b><strong>HOÀN THIỆN</strong><br/>Con người biên tập + xuất sản phẩm</div>
+</div>
+<p class="small">Nguyên tắc: đầu ra của bước trước phải đủ chất lượng để trở thành đầu vào của bước sau.</p>
+<div class="tabs">
+<button class="tabbtn active" data-tab="l1log">Hậu cần (Logistics)</button>
+<button class="tabbtn" data-tab="l1fin">Tài chính – Ngân hàng</button>
+</div>
+<div class="tabpane active" id="l1log">
+<h3>Ví dụ 1 — Xử lý đơn giao hàng trễ</h3>
+<table>
+<tr><th>Bước</th><th>Đầu vào</th><th>Xử lý</th><th>Đầu ra</th><th>Kiểm tra chất lượng</th></tr>
+<tr><td>1. Nhận sự cố</td><td>Mã đơn, thời gian dự kiến, trạng thái xe</td><td>Tập hợp thông tin</td><td>Phiếu sự cố</td><td>Đủ mã đơn, tuyến, giờ</td></tr>
+<tr><td>2. Xác định nguyên nhân</td><td>Phiếu sự cố + GPS + lịch giao</td><td>So sánh dữ liệu</td><td>Nhóm nguyên nhân</td><td>Không suy đoán khi thiếu dữ liệu</td></tr>
+<tr><td>3. AI hỗ trợ</td><td>Dữ liệu đã chuẩn hóa</td><td>AI tóm tắt, gợi ý phương án</td><td>3 phương án xử lý</td><td>Phương án phải khả thi với tuyến thực tế</td></tr>
+<tr><td>4. Người quyết định</td><td>3 phương án</td><td>Điều phối viên chọn phương án</td><td>Kế hoạch xử lý</td><td>Không vượt năng lực xe/kho</td></tr>
+<tr><td>5. Cập nhật</td><td>Kế hoạch đã duyệt</td><td>Thông báo + theo dõi</td><td>Trạng thái mới</td><td>Khách hàng nhận thông tin</td></tr>
+</table>
+<p><b>Phân tích:</b> AI hữu ích ở bước tóm tắt và gợi ý, nhưng quyết định đổi tuyến hoặc cam kết thời gian giao cần con người vì liên quan chi phí, năng lực vận tải và trải nghiệm khách hàng.</p>
+</div>
+<div class="tabpane" id="l1fin">
+<h3>Ví dụ 1 — Tiếp nhận hồ sơ vay cá nhân</h3>
+<table>
+<tr><th>Bước</th><th>Đầu vào</th><th>Xử lý</th><th>Đầu ra</th><th>Kiểm tra chất lượng</th></tr>
+<tr><td>1. Nhận hồ sơ</td><td>Thông tin khách hàng, chứng từ</td><td>Kiểm tra danh mục</td><td>Bộ hồ sơ ban đầu</td><td>Không thiếu trường bắt buộc</td></tr>
+<tr><td>2. Chuẩn hóa</td><td>Hồ sơ ban đầu</td><td>Sắp xếp, chuẩn tên trường</td><td>Hồ sơ có cấu trúc</td><td>Đúng định dạng</td></tr>
+<tr><td>3. AI hỗ trợ</td><td>Hồ sơ có cấu trúc</td><td>Tóm tắt, phát hiện điểm cần hỏi thêm</td><td>Danh sách câu hỏi/điểm cần xác minh</td><td>Không tự kết luận tín dụng</td></tr>
+<tr><td>4. Chuyên viên kiểm</td><td>Tóm tắt + chứng từ gốc</td><td>Đối chiếu</td><td>Thông tin xác thực</td><td>Khớp chứng từ</td></tr>
+<tr><td>5. Chuyển thẩm định</td><td>Hồ sơ xác thực</td><td>Chuyển bước nghiệp vụ</td><td>Hồ sơ sẵn sàng</td><td>Có người chịu trách nhiệm</td></tr>
+</table>
+<p><b>Phân tích:</b> AI có thể hỗ trợ đọc/tóm tắt, nhưng không nên tự phê duyệt khoản vay. Quyết định hậu quả cao phải có chuyên viên chịu trách nhiệm.</p>
+</div>
+<div class="exercise">
+<h3>Bài tập tiết 1 — Vẽ quy trình hiện tại</h3>
+<p>Chọn 1 nhiệm vụ quen thuộc trong chuyên ngành. Viết 3–5 bước hiện tại, ghi đầu vào/đầu ra từng bước, đánh dấu bước chậm hoặc dễ sai và đề xuất 1 bước có thể dùng AI.</p>
+<textarea placeholder="Ghi quy trình quy trình hiện tại của bạn tại đây..."></textarea>
+</div>
+</section>
+<section class="section lesson" id="tiet2">
+<h2>TIẾT 2 — Phân rã nhiệm vụ và tìm điểm nghẽn</h2>
+
+<h3>2.3 Biến một nhiệm vụ lớn thành 5 bước có thể kiểm</h3>
+<p><b>Tình huống Hậu cần:</b> “Lập báo cáo tình trạng giao hàng mỗi chiều”. Không nên chỉ đặt một bước duy nhất “dùng AI làm báo cáo”. Hãy chia thành nhận dữ liệu, làm sạch, tổng hợp, kiểm tra và phát hành.</p>
+<table><tr><th>Bước</th><th>Công việc</th><th>Sản phẩm</th><th>Ai kiểm?</th></tr><tr><td>1</td><td>Nhận danh sách từ kho, tài xế, đơn hàng</td><td>Tệp dữ liệu gốc</td><td>Nhân viên điều phối</td></tr><tr><td>2</td><td>Chuẩn hóa mã đơn, ngày, trạng thái</td><td>Bảng thống nhất</td><td>Nhân viên nhập liệu</td></tr><tr><td>3</td><td>Phân nhóm hoàn tất/trễ/đang giao</td><td>Bảng tổng hợp</td><td>Điều phối viên</td></tr><tr><td>4</td><td>Kiểm tra đơn trùng và trạng thái mâu thuẫn</td><td>Bảng đã đối chiếu</td><td>Điều phối viên</td></tr><tr><td>5</td><td>Viết và gửi báo cáo</td><td>Bản báo cáo ngày</td><td>Người phụ trách</td></tr></table>
+<div class="analysis"><b>Phân tích:</b> Bước 2–3 là nơi AI có thể hỗ trợ phân loại và diễn đạt. Bước 4 vẫn bắt buộc dùng số liệu gốc để kiểm.</div>
+<p><b>Tình huống Tài chính – Ngân hàng:</b> “Viết nhận xét biến động thu chi”. Dữ liệu kỳ trước: thu 80 triệu, chi 62 triệu; kỳ này: thu 92 triệu, chi 78 triệu. Thu tăng 12 triệu (15%), chi tăng 16 triệu (khoảng 25,8%), chênh lệch thu–chi giảm từ 18 triệu còn 14 triệu. Đây là nhận xét tính từ dữ liệu giả định, không phải kết luận về chất lượng tài chính của một doanh nghiệp thật.</p>
+<h3>2.4 Cách chấm mức ưu tiên cho điểm nghẽn</h3>
+<p>Hãy cho mỗi bước điểm từ 1 đến 3 ở ba tiêu chí: <b>thời gian tốn kém, khả năng sai, tần suất lặp lại</b>. Tổng điểm càng cao thì càng đáng xem xét cải tiến. Tuy nhiên vẫn phải hỏi “có dữ liệu chuẩn hay không?” và “nếu AI sai thì hậu quả là gì?”.</p>
+<table><tr><th>Bước (minh họa)</th><th>Chậm</th><th>Dễ sai</th><th>Lặp nhiều</th><th>Tổng</th></tr><tr><td>Đọc mô tả đơn bằng tay</td><td>3</td><td>2</td><td>3</td><td><b>8</b></td></tr><tr><td>Kiểm tra phê duyệt cuối</td><td>1</td><td>3</td><td>1</td><td><b>5</b></td></tr><tr><td>Đặt tên tệp báo cáo</td><td>1</td><td>1</td><td>3</td><td><b>5</b></td></tr></table>
+<div class="qa"><b>Câu hỏi:</b> Vì sao bước có điểm cao nhất chưa chắc được giao hoàn toàn cho AI?<details><summary>Hiện đáp án</summary><p>Điểm ưu tiên chỉ chỉ ra nơi cần cải tiến. Quyết định áp dụng AI còn phụ thuộc độ nhạy dữ liệu, sai số cho phép, mức hậu quả và khả năng kiểm tra đầu ra.</p></details></div>
+<h3>2.1 Nguyên tắc chia bước</h3>
+<div class="grid g3">
+<div class="card t-blue"><h4>Một mục tiêu</h4><p>Mỗi bước giải quyết một việc chính.</p></div>
+<div class="card t-green"><h4>Đầu ra rõ</h4><p>Biết khi nào bước đó được xem là hoàn thành.</p></div>
+<div class="card t-purple"><h4>Có thể kiểm</h4><p>Có tiêu chí để phát hiện lỗi.</p></div>
+<div class="card t-orange"><h4>Không quá nhỏ</h4><p>Không chia thành thao tác vụn vặt.</p></div>
+<div class="card t-red"><h4>Không quá lớn</h4><p>Không gom cả quy trình vào một bước.</p></div>
+<div class="card t-blue"><h4>Có người chịu trách nhiệm</h4><p>Ai là người xác nhận để đi tiếp?</p></div>
+</div>
+<h3>2.2 Điểm nghẽn — Điểm nghẽn</h3>
+<p>Điểm nghẽn thường có một hoặc nhiều dấu hiệu: <b>chậm, dễ sai, khó mở rộng, thiếu nhất quán, phải tổng hợp nhiều nguồn</b>. Nhưng “điểm nghẽn” chưa chắc đã là nơi phù hợp để giao cho AI.</p>
+<div class="tabs">
+<button class="tabbtn active" data-tab="l2log">Hậu cần (Logistics)</button>
+<button class="tabbtn" data-tab="l2fin">Tài chính – Ngân hàng</button>
+</div>
+<div class="tabpane active" id="l2log">
+<h3>Ví dụ 2 — Lập kế hoạch giao hàng ngày</h3>
+<p><b>quy trình hiện tại:</b> Nhận danh sách đơn → đọc địa chỉ → nhóm theo khu vực → xếp xe → gọi tài xế xác nhận.</p>
+<p><b>Điểm nghẽn:</b> nhóm địa chỉ thủ công và rà đơn ưu tiên mất nhiều thời gian, dễ bỏ sót.</p>
+<p><b>Ứng viên AI:</b> AI có thể hỗ trợ chuẩn hóa mô tả địa chỉ và phân nhóm sơ bộ. Tuy nhiên xếp xe cuối cùng phải xét tải trọng, ca làm, đường cấm, giờ giao — đây là nơi cần kiểm nghiệp vụ.</p>
+</div>
+<div class="tabpane" id="l2fin">
+<h3>Ví dụ 2 — Tổng hợp biến động giao dịch</h3>
+<p><b>quy trình hiện tại:</b> Xuất dữ liệu → lọc theo tiêu chí → đọc từng nhóm → viết nhận xét → lập báo cáo.</p>
+<p><b>Điểm nghẽn:</b> đọc nhiều dòng dữ liệu và viết nhận xét lặp lại.</p>
+<p><b>Ứng viên AI:</b> AI có thể nhóm mô tả giao dịch và tạo bản nháp nhận xét. Người học phải kiểm số liệu gốc, không để AI tự “sáng tác” số liệu hoặc kết luận rủi ro.</p>
+</div>
+<div class="exercise">
+<h3>Bài tập tiết 2 — Điểm nghẽn Hunt</h3>
+<p>Với quy trình tiết 1, hãy ước tính thời gian từng bước, đánh dấu rủi ro lỗi và chọn tối đa 2 điểm nghẽn. Giải thích vì sao nên hoặc không nên dùng AI.</p>
+<details><summary>Gợi ý cách trả lời</summary>
+<p>Ví dụ: “Bước 3 mất 20 phút/ca vì phải đọc 40 mô tả. AI phù hợp ở mức gợi ý vì công việc lặp lại; nhưng cần kiểm bởi con người trước khi sử dụng kết quả.”</p>
+</details>
+</div>
+</section>
+<section class="section lesson" id="tiet3">
+<h2>TIẾT 3 — Gắn AI vào đúng bước và thiết kế Câu lệnh AI Chuyển giao kết quả</h2>
+
+<h3>3.5 Viết câu lệnh AI từng thành phần</h3>
+<p><b>VAI TRÒ:</b> AI là trợ lý của nhân viên điều phối hay trợ lý tổng hợp tài chính? Không đặt vai trò “người phê duyệt”.</p>
+<p><b>BỐI CẢNH:</b> Mô tả đơn vị, mục đích, dữ liệu mô phỏng được cung cấp. Không đưa tên, số tài khoản, hồ sơ cá nhân thật vào công cụ AI không được cho phép.</p>
+<p><b>NHIỆM VỤ:</b> Chỉ một yêu cầu cụ thể như phân nhóm đơn hàng, tìm dòng thiếu thông tin, tóm tắt bảng.</p>
+<p><b>ĐỊNH DẠNG:</b> Yêu cầu bảng có tên cột cố định để bước sau đọc được.</p>
+<p><b>TIÊU CHÍ:</b> Không tự tạo số liệu; đánh dấu giá trị thiếu; giải thích nhận xét phải dựa trên dữ kiện.</p>
+<p><b>CHUYỂN GIAO:</b> Bước A chuyển cho bước B những cột nào? Nếu thiếu cột “mã đơn” hoặc “kỳ dữ liệu” thì bước B phải dừng.</p>
+<h3>3.6 Thực hiện thử chuỗi hai câu lệnh</h3>
+<div class="example"><b>Dữ liệu giả định — Hậu cần:</b> DH01: giao đúng giờ, khách đã nhận; DH02: tài xế thông báo giao chậm, chưa có nguyên nhân; DH03: địa chỉ thiếu số nhà, chưa liên hệ được khách.</div>
+<div class="analysis"><b>Bước A:</b> Yêu cầu AI phân nhóm đơn và ghi rõ dữ liệu còn thiếu. <b>Bước B:</b> Nhận bảng nhóm; soạn tin nhắn thông báo riêng cho đơn DH02, DH03 nhưng không tự cam kết giờ giao. <b>Kiểm tra:</b> nếu AI tự ghi “sẽ giao trước 16:00” khi không có dữ liệu xác thực, phải sửa và ghi nhận lỗi.</div>
+<div class="example"><b>Dữ liệu giả định — Tài chính:</b> Tháng 1 thu 50 triệu, chi 42 triệu; tháng 2 thu 55 triệu, chi 47 triệu. Chênh lệch tháng 1 và tháng 2 đều là 8 triệu. AI có thể tạo nhận xét rằng thu và chi cùng tăng 5 triệu, nhưng không được nói chênh lệch “cải thiện”.</div>
+<div class="qa"><b>Thảo luận:</b> “Tại sao đầu ra đẹp nhưng thiếu trường dữ liệu quan trọng lại là lỗi chuyển giao?”<details><summary>Hiện giải thích</summary><p>Bởi người hoặc công cụ ở bước sau không thể kiểm chứng, nối dữ liệu hoặc thao tác chính xác. Định dạng và tính đầy đủ quan trọng như cách diễn đạt.</p></details></div>
+<h3>3.1 Ma trận “AI có phù hợp không?”</h3>
+<table>
+<tr><th>Mức</th><th>Phù hợp</th><th>Ví dụ</th></tr>
+<tr><td><b>Phù hợp hơn</b></td><td>Tóm tắt, phân loại, tạo nháp, đổi định dạng, gợi ý</td><td>Tóm tắt báo cáo giao hàng; tạo nháp email chăm sóc khách hàng</td></tr>
+<tr><td><b>Cần kiểm soát</b></td><td>Phân tích, trích xuất, so sánh, suy luận</td><td>So sánh nhà cung cấp; nhận xét biến động dòng tiền</td></tr>
+<tr><td><b>Không giao toàn bộ</b></td><td>Phê duyệt, quyết định hậu quả cao, dữ liệu nhạy cảm</td><td>Duyệt tín dụng; quyết định thanh lý nhà cung cấp chiến lược</td></tr>
+</table>
+<h3>3.2 Ba mức tích hợp AI</h3>
+<div class="grid g3">
+<div class="card t-blue"><h4>AI gợi ý</h4><p>AI đề xuất; người làm toàn bộ quyết định.</p></div>
+<div class="card t-purple"><h4>AI hỗ trợ thực hiện</h4><p>AI xử lý một phần; người kiểm và hoàn thiện.</p></div>
+<div class="card t-green"><h4>AI thực hiện việc lặp lại có kiểm soát</h4><p>AI làm bước lặp lại; có quy tắc, log và điểm dừng.</p></div>
+</div>
+<h3>3.3 Con người tham gia kiểm soát</h3>
+<p>Con người cần xuất hiện <b>trước AI</b> để chọn dữ liệu/mục tiêu; <b>trong quy trình</b> để kiểm đầu ra; <b>sau AI</b> để biên tập/xác nhận; và đặc biệt tại <b>điểm quyết định, ngoại lệ, rủi ro</b>.</p>
+<h3>3.4 Công thức Câu lệnh AI cho Quy trình</h3>
+<div class="workflow">
+<div class="step s3"><strong>VAI TRÒ</strong><br/>Vai trò AI</div>
+<div class="step s4"><strong>BỐI CẢNH</strong><br/>Ngữ cảnh cần thiết</div>
+<div class="step s2"><strong>NHIỆM VỤ</strong><br/>Nhiệm vụ rõ</div>
+<div class="step s5"><strong>ĐỊNH DẠNG</strong><br/>Định dạng đầu ra</div>
+<div class="step s1"><strong>TIÊU CHÍ + CHUYỂN GIAO</strong><br/>Tiêu chí + bàn giao</div>
+</div>
+<div class="tabs">
+<button class="tabbtn active" data-tab="pLog">Câu lệnh AI mẫu Hậu cần (Logistics)</button>
+<button class="tabbtn" data-tab="pFin">Câu lệnh AI mẫu Tài chính – Ngân hàng</button>
+</div>
+<div class="tabpane active" id="pLog">
+<div class="callout"><b>Câu lệnh AI A – Phân loại sự cố giao hàng:</b><br/>
+“Bạn là trợ lý điều phối logistics. Dựa trên danh sách sự cố tôi cung cấp, hãy phân loại theo 4 nhóm: trễ do phương tiện, trễ do kho, trễ do địa chỉ/khách hàng, chưa đủ dữ liệu. Xuất bảng gồm: Mã đơn | Nhóm nguyên nhân | Dữ kiện hỗ trợ | Thông tin còn thiếu. Không tự suy đoán khi không có dữ kiện.”</div>
+<p><b>Chuyển giao kết quả:</b> Đầu ra A được dùng làm input cho bước B: “Đề xuất 2 phương án xử lý cho từng sự cố có đủ dữ liệu; nếu thiếu dữ liệu thì chỉ đặt câu hỏi cần bổ sung.”</p>
+</div>
+<div class="tabpane" id="pFin">
+<div class="callout"><b>Câu lệnh AI A – Tóm tắt hồ sơ tài chính:</b><br/>
+“Bạn là trợ lý phân tích dữ liệu tài chính dành cho sinh viên. Hãy tóm tắt dữ liệu theo đúng số liệu được cung cấp, không tự tạo số. Xuất 4 mục: Dữ liệu chính | Biến động nổi bật | Điểm cần kiểm tra | Câu hỏi cần xác minh. Nếu số liệu mâu thuẫn, ghi ‘CẦN XÁC MINH’.”</div>
+<p><b>Chuyển giao kết quả:</b> Đầu ra A đi vào bước B để người học đối chiếu số liệu nguồn trước khi viết nhận xét.</p>
+</div>
+<div class="exercise">
+<h3>Bài tập tiết 3 — Câu lệnh AI Chuyển giao kết quả</h3>
+<p>Chọn 2 bước liên tiếp có AI. Viết Câu lệnh AI A, quy định format đầu ra, rồi mô tả cách dùng Đầu ra A làm Đầu vào B. Chỉ ra 1 lỗi handoff có thể xảy ra.</p>
+</div>
+</section>
+<section class="section lesson" id="tiet4">
+<h2>TIẾT 4 — Kiểm thử, đo lường và tối ưu Quy trình</h2>
+
+<h3>4.3 Quy trình kiểm thử dễ hiểu cho sinh viên</h3>
+<ol><li>Chuẩn bị dữ liệu đầu vào mẫu và ghi kết quả đúng mong đợi.</li><li>Chạy từng bước theo đúng thứ tự, lưu đầu ra trung gian.</li><li>Đánh dấu câu trả lời nào sai dữ kiện, bỏ qua bước hoặc tự suy đoán.</li><li>Ghi nhận thời gian thực hiện, số lỗi và thời gian phải sửa.</li><li>Thêm điều kiện dừng, sửa câu lệnh hoặc sửa biểu mẫu rồi chạy lại.</li></ol>
+<div class="example"><b>Ví dụ tính mức giảm thời gian:</b> Quy trình cũ 40 phút, quy trình cải tiến 25 phút. Thời gian giảm 15 phút, tương đương <b>37,5%</b> so với ban đầu. Nếu sau đó người kiểm phải mất thêm 20 phút sửa lỗi thì phương án AI chưa tạo giá trị thực tế.</div>
+<h3>4.4 Điều kiện dừng bắt buộc</h3>
+<div class="grid g2"><div class="card t-red"><h4>Hậu cần</h4><p>Nếu không có mã đơn, thiếu trạng thái vận chuyển, hay dữ liệu giờ giao mâu thuẫn: dừng ở bước phân tích, yêu cầu xác minh; không gửi thời gian hứa hẹn mới.</p></div><div class="card t-orange"><h4>Tài chính – Ngân hàng</h4><p>Nếu tổng chi tiết lệch tổng hợp, thiếu kỳ so sánh hoặc không rõ đơn vị tiền tệ: gắn nhãn “cần xác minh”; không viết kết luận và không tự động phê duyệt.</p></div></div>
+<h3>4.5 Nhật ký cải tiến</h3><table><tr><th>Phiên bản</th><th>Lỗi quan sát</th><th>Điều chỉnh</th><th>Kiểm thử lại</th></tr><tr><td>Lần 1</td><td>AI đoán nguyên nhân giao trễ</td><td>Thêm “Không rõ nguyên nhân”</td><td>Nhập trường hợp không có nguyên nhân</td></tr><tr><td>Lần 2</td><td>AI không còn tự đoán</td><td>Giữ quy tắc dừng và chuyển nhân viên</td><td>Đạt yêu cầu ví dụ</td></tr></table>
+<div class="qa"><b>Câu hỏi:</b> “Giảm 50% thời gian nhưng sai số tiền, có được kết luận quy trình hiệu quả hơn không?”<details><summary>Hiện đáp án</summary><p>Không. Cần xem đồng thời thời gian, chất lượng, số lỗi và công sức kiểm tra. Đặc biệt ở lĩnh vực tài chính, sai số liệu có thể làm mất ý nghĩa của lợi ích thời gian.</p></details></div>
+<h3>4.1 Test tình huống</h3>
+<div class="grid g3">
+<div class="card t-green"><h4>Tình huống 1 — Bình thường</h4><p>Dữ liệu đầy đủ, yêu cầu rõ.</p></div>
+<div class="card t-orange"><h4>Tình huống 2 — Thiếu/mơ hồ</h4><p>Thiếu trường quan trọng hoặc yêu cầu chưa rõ.</p></div>
+<div class="card t-red"><h4>Tình huống 3 — Lỗi/ngoại lệ</h4><p>Sai định dạng, mâu thuẫn, dữ liệu bất thường.</p></div>
+</div>
+<h3>4.2 Bốn chỉ số Before / After</h3>
+<table>
+<tr><th>Chỉ số</th><th>Câu hỏi đo</th><th>Ví dụ</th></tr>
+<tr><td>Thời gian</td><td>Hoàn thành nhanh hơn bao nhiêu?</td><td>Từ 30 phút xuống 18 phút</td></tr>
+<tr><td>Chất lượng</td><td>Đáp ứng tiêu chí đầu ra ở mức nào?</td><td>Thang đánh giá từ 7/10 lên 9/10</td></tr>
+<tr><td>Lỗi</td><td>Số lỗi/điểm phải sửa?</td><td>Từ 6 lỗi xuống 2 lỗi</td></tr>
+<tr><td>Nỗ lực con người</td><td>Giảm thao tác lặp lại nhưng có tăng kiểm tra không?</td><td>Giảm nhập tay 15 phút, tăng kiểm 3 phút</td></tr>
+</table>
+<div class="tabs">
+<button class="tabbtn active" data-tab="testLog">Tình huống Hậu cần (Logistics)</button>
+<button class="tabbtn" data-tab="testFin">Tình huống Tài chính – Ngân hàng</button>
+</div>
+<div class="tabpane active" id="testLog">
+<h3>Ví dụ nhật ký kiểm thử — Hậu cần (Logistics)</h3>
+<table>
+<tr><th>Tình huống</th><th>Dữ liệu</th><th>Kỳ vọng</th><th>Điểm dừng/Hỏi lại</th></tr>
+<tr><td>Bình thường</td><td>Đủ mã đơn, tuyến, GPS, giờ</td><td>Phân loại + đề xuất phương án</td><td>Không cần</td></tr>
+<tr><td>Thiếu</td><td>Không có vị trí xe</td><td>AI phải yêu cầu bổ sung</td><td>Dừng trước bước đề xuất tuyến</td></tr>
+<tr><td>Ngoại lệ</td><td>Địa chỉ không khớp đơn</td><td>Đánh dấu mâu thuẫn</td><td>Chuyển người kiểm</td></tr>
+</table>
+</div>
+<div class="tabpane" id="testFin">
+<h3>Ví dụ nhật ký kiểm thử — Tài chính – Ngân hàng</h3>
+<table>
+<tr><th>Tình huống</th><th>Dữ liệu</th><th>Kỳ vọng</th><th>Điểm dừng/Hỏi lại</th></tr>
+<tr><td>Bình thường</td><td>Đủ số liệu</td><td>Tóm tắt đúng số</td><td>Người kiểm trước khi dùng</td></tr>
+<tr><td>Thiếu</td><td>Thiếu kỳ so sánh</td><td>Ghi “chưa đủ dữ liệu”</td><td>Yêu cầu bổ sung kỳ trước</td></tr>
+<tr><td>Ngoại lệ</td><td>Tổng chi tiết ≠ tổng báo cáo</td><td>Đánh dấu mâu thuẫn</td><td>Dừng, không kết luận</td></tr>
+</table>
+</div>
+<div class="exercise">
+<h3>Bài tập tiết 4 — Chạy 3 Tình huống kiểm thử</h3>
+<p>Chạy quy trình với 3 tình huống, ghi kết quả từng bước, nơi thất bại, thời gian, lỗi và cách sửa. Sau đó chỉnh thành Quy trình lần 2.</p>
+</div>
+</section>
+<section class="section lesson" id="tiet5">
+<h2>TIẾT 5 — Thử thách: My AI Quy trình</h2>
+
+<h3>5.5 Hướng dẫn nộp bài từ đầu đến cuối</h3>
+<ol><li><b>Đặt tên vấn đề:</b> Viết 1–2 câu mô tả nhiệm vụ gần với ngành học.</li><li><b>Vẽ quy trình hiện tại:</b> 3–5 bước không có AI, ghi các điểm nghẽn và số phút ước tính.</li><li><b>Vẽ quy trình đề xuất:</b> Chỉ thêm AI vào nơi mang lại giá trị; giữ bước kiểm soát con người.</li><li><b>Viết phiếu từng bước:</b> Đầu vào – Công việc – Đầu ra – Ai làm – Tiêu chí kiểm.</li><li><b>Viết chuỗi câu lệnh:</b> Ít nhất 2 câu lệnh liên tiếp, xác định định dạng chuyển giao.</li><li><b>Kiểm thử:</b> Có đủ trường hợp bình thường, thiếu dữ liệu và mâu thuẫn/ngoại lệ.</li><li><b>Đo:</b> So sánh ít nhất hai chỉ số trước và sau bằng dữ liệu đo hoặc ước tính ghi rõ.</li><li><b>Rút kinh nghiệm:</b> Nêu giới hạn của AI, điều kiện dừng và trách nhiệm của con người.</li></ol>
+<div class="example"><h4>Bài mẫu rút gọn — Hậu cần</h4><p><b>Đề tài:</b> Báo cáo 10 đơn giao trong ngày. Quy trình hiện tại: gom dữ liệu 10 phút, đọc và nhóm 15 phút, viết báo cáo 10 phút, rà 5 phút. Tổng 40 phút. Quy trình đề xuất: dùng bảng đầu vào chuẩn; AI hỗ trợ nhóm trạng thái và viết nháp; nhân viên rà mã đơn và trạng thái trước khi công bố. Thử nghiệm ước tính 25 phút, chưa phải số liệu thực tế.</p><p><b>Điều kiện kiểm:</b> tổng số đơn theo trạng thái phải bằng 10; không được tạo mã đơn ngoài danh sách; nếu trạng thái thiếu phải để “chưa xác nhận”.</p></div>
+<div class="example"><h4>Bài mẫu rút gọn — Tài chính – Ngân hàng</h4><p><b>Đề tài:</b> Tóm tắt bảng thu–chi giả định 2 tháng. AI đọc bảng và tạo bản nháp nhận xét, sinh viên đối chiếu tổng thu/chi và tính lại chênh lệch. Nếu AI suy ra khả năng tín dụng từ dữ liệu đơn giản, phải loại bỏ kết luận.</p><p><b>Điều kiện kiểm:</b> số liệu và đơn vị tiền tệ khớp bảng nguồn; thiếu dữ liệu phải nêu rõ; người học phê duyệt nhận xét trước khi nộp.</p></div>
+<h3>5.6 Mẫu phiếu để sinh viên điền ngay trên trang</h3>
+<label><b>Tên đề tài và ngành học</b></label><textarea class="writingarea" placeholder="Ví dụ: Báo cáo đơn hàng giao trễ – Hậu cần và quản lý chuỗi cung ứng"></textarea>
+<label><b>Quy trình hiện tại và điểm nghẽn</b></label><textarea class="writingarea" placeholder="Viết từ 3 đến 5 bước, xác định bước tốn thời gian hoặc dễ sai"></textarea>
+<label><b>Quy trình đề xuất và vai trò AI</b></label><textarea class="writingarea" placeholder="Liệt kê từng bước, nói rõ AI làm gì và con người kiểm gì"></textarea>
+<label><b>Ba tình huống kiểm thử và kết quả đo</b></label><textarea class="writingarea" placeholder="Tình huống 1...; Tình huống 2...; Tình huống 3...; thời gian, lỗi, chất lượng"></textarea>
+<div style="margin-top:10px"><button class="btn secondary" onclick="window.print()">In bài học / lưu thành PDF</button></div>
+<p><span class="badge">Sản phẩm cuối buổi</span> Thiết kế, kiểm thử và chứng minh một quy trình có AI 3–5 bước cho một nhiệm vụ chuyên ngành.</p>
+<h3>5.1 Yêu cầu sản phẩm</h3>
+<div class="grid g3">
+<div class="card t-red"><h4>quy trình hiện tại</h4><p>Quy trình hiện tại + điểm nghẽn.</p></div>
+<div class="card t-blue"><h4>quy trình đề xuất</h4><p>quy trình có AI 3–5 bước.</p></div>
+<div class="card t-purple"><h4>PROMPT</h4><p>Câu lệnh AI chain + output có cấu trúc.</p></div>
+<div class="card t-green"><h4>KIỂM THỬ</h4><p>Tối thiểu 3 test tình huống.</p></div>
+<div class="card t-orange"><h4>ĐO LƯỜNG</h4><p>Trước/Sau ít nhất 2 chỉ số.</p></div>
+<div class="card t-blue"><h4>RÚT KINH NGHIỆM</h4><p>Giới hạn + Quyết định của con người.</p></div>
+</div>
+<h3>5.2 Đề bài gợi ý theo ngành</h3>
+<div class="grid g2">
+<div class="card t-blue">
+<h4>Hậu cần và Quản lý chuỗi cung ứng</h4>
+<ol>
+<li>Xử lý đơn giao trễ.</li>
+<li>So sánh báo giá của 3 nhà cung cấp.</li>
+<li>Tổng hợp tồn kho và đề xuất danh sách cần kiểm tra.</li>
+<li>Chuẩn hóa yêu cầu nhập hàng từ nhiều bộ phận.</li>
+<li>Tạo báo cáo sự cố vận tải cuối ngày.</li>
+</ol>
+</div>
+<div class="card t-green">
+<h4>Tài chính – Ngân hàng</h4>
+<ol>
+<li>Tóm tắt hồ sơ khách hàng để chuẩn bị thẩm định.</li>
+<li>Phân nhóm giao dịch theo mô tả.</li>
+<li>Tạo báo cáo biến động thu–chi từ dữ liệu mẫu.</li>
+<li>Chuẩn hóa dữ liệu trước khi phân tích.</li>
+<li>Tạo checklist kiểm tra hồ sơ trước khi chuyển bước.</li>
+</ol>
+</div>
+</div>
+<h3>5.3 Thang đánh giá</h3>
+<table>
+<tr><th>Tiêu chí</th><th>Tỷ trọng</th><th>Yêu cầu</th></tr>
+<tr><td>Bài toán</td><td>15%</td><td>Đúng điểm nghẽn</td></tr>
+<tr><td>Thiết kế</td><td>25%</td><td>Bước, input/output, handoff rõ</td></tr>
+<tr><td>Sử dụng AI</td><td>15%</td><td>AI được gắn đúng vai trò</td></tr>
+<tr><td>Test</td><td>20%</td><td>Có tình huống thường + thiếu/mơ hồ + ngoại lệ</td></tr>
+<tr><td>Giá trị</td><td>15%</td><td>Trước/Sau có bằng chứng</td></tr>
+<tr><td>Giải trình</td><td>10%</td><td>Hiểu giới hạn và quyết định của con người</td></tr>
+</table>
+<div class="exercise">
+<h3>Hoạt động 30 phút — Thiết kế Quy trình lần 2</h3>
+<div class="timerbox">
+<span class="timer" id="timer">30:00</span>
+<button class="btn" onclick="startTimer(30)">Bắt đầu 30 phút</button>
+<button class="btn secondary" onclick="resetTimer()">Đặt lại</button>
+</div>
+<p><b>Đầu ra bắt buộc:</b> sơ đồ quy trình hiện tại/quy trình đề xuất, 3–5 Quy trình Cards, chuỗi câu lệnh AI, 3 Tình huống kiểm thử, bảng Trước/Sau và 1 đoạn Phần tự đánh giá.</p>
+</div>
+<h3>5.4 Trình bày 4 phút</h3>
+<table>
+<tr><th>Thời gian</th><th>Nội dung</th></tr>
+<tr><td>0:00–0:40</td><td>Bài toán + điểm nghẽn</td></tr>
+<tr><td>0:40–1:40</td><td>quy trình hiện tại → quy trình đề xuất</td></tr>
+<tr><td>1:40–2:40</td><td>Demo một đoạn quy trình</td></tr>
+<tr><td>2:40–3:20</td><td>Kết quả Trước/Sau</td></tr>
+<tr><td>3:20–4:00</td><td>Giới hạn + Quyết định của con người</td></tr>
+</table>
+</section>
+<section class="section">
+<h2>Câu hỏi trắc nghiệm cuối buổi</h2>
+<div class="quizq" data-answer="b">
+<p><b>1. quy trình có AI khác với “hỏi AI một câu” ở điểm cốt lõi nào?</b></p>
+<label><input name="q1" type="radio" value="a"/> Có nhiều công cụ hơn</label>
+<label><input name="q1" type="radio" value="b"/> Có chuỗi bước, đầu vào/đầu ra, điểm kiểm và trách nhiệm rõ</label>
+<label><input name="q1" type="radio" value="c"/> Luôn tự động hóa hoàn toàn</label>
+<div class="feedback"></div>
+</div>
+<div class="quizq" data-answer="c">
+<p><b>2. Bước nào không nên giao hoàn toàn cho AI?</b></p>
+<label><input name="q2" type="radio" value="a"/> Tóm tắt dữ liệu</label>
+<label><input name="q2" type="radio" value="b"/> Đổi định dạng văn bản</label>
+<label><input name="q2" type="radio" value="c"/> Phê duyệt quyết định hậu quả cao</label>
+<div class="feedback"></div>
+</div>
+<div class="quizq" data-answer="a">
+<p><b>3. Vì sao phải test tình huống thiếu dữ liệu?</b></p>
+<label><input name="q3" type="radio" value="a"/> Để biết quy trình có dừng/hỏi lại đúng lúc hay không</label>
+<label><input name="q3" type="radio" value="b"/> Để AI trả lời dài hơn</label>
+<label><input name="q3" type="radio" value="c"/> Để giảm số bước bằng mọi giá</label>
+<div class="feedback"></div>
+</div>
+<div class="quizq" data-answer="b">
+<p><b>4. Chuyển giao kết quả tốt nghĩa là gì?</b></p>
+<label><input name="q4" type="radio" value="a"/> Bước trước có nội dung thật dài</label>
+<label><input name="q4" type="radio" value="b"/> Đầu ra bước trước dùng được trực tiếp và đủ chất lượng cho bước sau</label>
+<label><input name="q4" type="radio" value="c"/> Mỗi bước dùng một công cụ AI khác nhau</label>
+<div class="feedback"></div>
+</div>
+<div class="quizq" data-answer="c">
+<p><b>5. Tối ưu quy trình có nhất thiết là thêm AI?</b></p>
+<label><input name="q5" type="radio" value="a"/> Có, luôn luôn</label>
+<label><input name="q5" type="radio" value="b"/> Có, nếu có nhiều bước</label>
+<label><input name="q5" type="radio" value="c"/> Không; có thể loại bước, gộp bước, chuẩn hóa hoặc thêm kiểm soát</label>
+<div class="feedback"></div>
+</div>
+<button class="btn" onclick="gradeCâu hỏi trắc nghiệm()">Chấm trắc nghiệm</button>
+<p id="score" style="font-size:20px;font-weight:900"></p>
+</section>
+<section class="footerbox">
+<h2 style="margin-top:0">6 điều cần nhớ</h2>
+<p>1) Hiểu quy trình trước khi tự động hóa. 2) Chia bước và chuẩn hóa handoff. 3) Gắn AI đúng điểm tạo giá trị. 4) Giữ Con người tham gia kiểm soát. 5) Test cả ngoại lệ và đo Trước/Sau. 6) Quy trình tốt phải giải trình và tái sử dụng được.</p>
+<p><b>Chuẩn bị cho buổi sau:</b> mang Quy trình lần 2 để áp dụng vào một tình huống nghề nghiệp hoàn chỉnh.</p>
+</section>
+</main>
+<script>
+document.querySelectorAll('.tabbtn').forEach(btn=>{
+ btn.addEventListener('click',()=>{
+   const group=btn.parentElement;
+   group.querySelectorAll('.tabbtn').forEach(b=>b.classList.remove('active'));
+   btn.classList.add('active');
+   const target=btn.dataset.tab;
+   let el=group.nextElementSibling;
+   while(el && el.classList.contains('tabpane')){
+     el.classList.toggle('active',el.id===target);
+     el=el.nextElementSibling;
+   }
+ });
+});
+window.addEventListener('scroll',()=>{
+ const doc=document.documentElement, max=doc.scrollHeight-doc.clientHeight;
+ document.getElementById('progressBar').style.width=(max?doc.scrollTop/max*100:0)+'%';
+});
+function gradeQuiz(){
+ let correct=0,total=0;
+ document.querySelectorAll('.quizq').forEach(q=>{
+   total++;
+   const ans=q.dataset.answer;
+   const picked=q.querySelector('input:checked');
+   const fb=q.querySelector('.feedback');
+   if(picked && picked.value===ans){correct++;fb.textContent='✓ Đúng';fb.style.color='#148a5a'}
+   else{fb.textContent='✗ Chưa đúng';fb.style.color='#d91e32'}
+ });
+ document.getElementById('score').textContent=`Kết quả: ${correct}/${total} câu đúng.`;
+}
+let ticker=null, remaining=1800;
+function drawTimer(){
+ const m=Math.floor(remaining/60).toString().padStart(2,'0');
+ const s=(remaining%60).toString().padStart(2,'0');
+ document.getElementById('timer').textContent=m+':'+s;
+}
+function startTimer(min){
+ clearInterval(ticker); remaining=min*60; drawTimer();
+ ticker=setInterval(()=>{remaining--;drawTimer();if(remaining<=0){clearInterval(ticker);alert('Hết thời gian hoạt động!');}},1000);
+}
+function resetTimer(){clearInterval(ticker);remaining=1800;drawTimer();}
+function toggleMajor(){
+ const tabs=[...document.querySelectorAll('.tabs')];
+ tabs.forEach(g=>{const bs=[...g.querySelectorAll('.tabbtn')];if(bs.length===2){bs.find(b=>!b.classList.contains('active')).click();}});
+}
+</script>
+</body>
+</html>
